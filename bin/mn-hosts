@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Generate a static lookup table for Mininet hostnames
+# which may be concatenated onto /etc/hosts, or used
+# as an additional hosts file with dnsmasq
+
+if [ $# -gt 0 ]; then
+    HOSTS=$1
+else
+    HOSTS=4096
+fi
+
+echo "# The following lines are entries for Mininet hosts"
+HOST=1
+while [ $HOST -le $HOSTS ]; do
+    echo 10.0.$[($HOST/256)%256].$[$HOST%256] h$HOST
+    let HOST+=1
+done
+

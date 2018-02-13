@@ -1,0 +1,3 @@
+#!/bin/sh
+export NMOS_HOME="$(cd `dirname "$0"`; pwd -P)"/..
+PYTHONPATH=$NMOS_HOME/nmos-mininet mn --custom $NMOS_HOME/nmos-mininet/nmos_impl.py --custom $NMOS_HOME/nmos-mininet/nmos_cli.py --topo=tree,1,4 $@
