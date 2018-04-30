@@ -23,12 +23,15 @@ See http://mininet.org/vm-setup-notes/.
 
 More memory and more CPUs is better.
 On our primary test machine to simulate networks with several thousand nodes, we used 40 GBytes of memory and 12 CPUs, but it's certainly possible to run some tests with fewer.
+(Note that adding a second virtual network adaptor can cause problems e.g. when trying to install additional software within the VM via the host network.)
 
 ### Install Guest Additions to enable Shared Folders
 
-- Add an Optical Drive
+- Add an empty Optical Drive in *Settings > Storage*
 - Launch the host
 - Choose *Devices > Insert Guest Additions CD image...*
+
+(The VBoxGuestAdditions.iso is installed as part of VirtualBox.)
 
 Log in and run the following commands:
 
@@ -61,6 +64,7 @@ This increases the hard and soft limits, for all users, for the number of open f
 It can be a good idea to do this, otherwise there is a risk of running out of space on the primary disk.
 
 In VirtualBox add a new hard disk on the *Storage* tab of the settings dialog for the VM.
+The default options for a new virtual hard disk, to create a VDI (VirtualBox Disk Image) that is dynamically allocated, 10 GB in size, are OK depending on what else you want to use it for.
 
 Run up the VM and partition, format and mount the new disk. Add it to */etc/fstab* so this survives a reboot.
 
