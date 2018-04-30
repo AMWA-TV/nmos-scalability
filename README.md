@@ -25,7 +25,35 @@ More memory and more CPUs is better.
 On our primary test machine to simulate networks with several thousand nodes, we used 40 GBytes of memory and 12 CPUs, but it's certainly possible to run some tests with fewer.
 (Note that adding a second virtual network adaptor can cause problems e.g. when trying to install additional software within the VM via the host network.)
 
-### Install Guest Additions to enable Shared Folders
+## Install Ubuntu Desktop
+
+While this isn't required, it certainly makes using the virtual machine more comfortable!
+
+- Launch the host and login as "mininet"
+- If you are using a network proxy, set the ``http_proxy`` environment variable appropriately
+- Run the following commands:
+  ```bash
+  sudo -E apt-get update
+  sudo -E apt-get install ubuntu-desktop
+  ```
+- To configure Ubuntu to start the desktop automatically after login:
+  - Edit */etc/default/grub* and change the following line:
+  ```
+  GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 text "
+  ```
+  to:
+  ```
+  GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 quiet splash "
+  ```
+  - After editing the file, run the following command:
+  ```bash
+  sudo update-grub
+  ```
+
+The next time you boot the VM, you should see the GUI login screen.
+
+### Install Guest Additions to enable Shared Folders (and other Good Stuff*)
+(*such as being able to resize the VM screen/desktop)
 
 - Add an empty Optical Drive in *Settings > Storage*
 - Launch the host
