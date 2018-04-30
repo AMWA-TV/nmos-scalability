@@ -270,7 +270,9 @@ To create an additional hosts file and start up *dnsmasq*, run:
 
 ```bash
 cd <nmos-scalability>
-bin/mn-hosts 4096 >hosts.mininet
-chmod +w hosts.mininet
-sudo dnsmasq -h -H hosts.mininet
+sudo bin/mn-hosts 4096 >/etc/hosts.mininet
+sudo chmod +r hosts.mininet
+sudo dnsmasq -h -H /etc/hosts.mininet
 ```
+
+Note that the absolute path to the additional hosts file must be specified and readable by the *root* user.
