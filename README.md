@@ -29,7 +29,7 @@ On our primary test machine to simulate networks with several thousand nodes, we
 
 While this isn't required, it certainly makes using the virtual machine more comfortable!
 
-- Launch the host and login as "mininet"
+- Launch the host and login as the *mininet* user
 - If you are using a network proxy, set the ``http_proxy`` environment variable appropriately
 - Run the following commands:
   ```bash
@@ -38,17 +38,17 @@ While this isn't required, it certainly makes using the virtual machine more com
   ```
 - To configure Ubuntu to start the desktop automatically after login:
   - Edit */etc/default/grub* and change the following line:
-  ```
-  GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 text "
-  ```
-  to:
-  ```
-  GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 quiet splash "
-  ```
+    ```
+    GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 text "
+    ```
+    to:
+    ```
+    GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 quiet splash "
+    ```
   - After editing the file, run the following command:
-  ```bash
-  sudo update-grub
-  ```
+    ```bash
+    sudo update-grub
+    ```
 
 The next time you boot the VM, you should see the GUI login screen.
 
@@ -59,7 +59,7 @@ The next time you boot the VM, you should see the GUI login screen.
 - Launch the host
 - Choose *Devices > Insert Guest Additions CD image...*
 
-(The VBoxGuestAdditions.iso is installed as part of VirtualBox.)
+(The *VBoxGuestAdditions.iso* image is installed as part of VirtualBox.)
 
 Log in and run the following commands:
 
