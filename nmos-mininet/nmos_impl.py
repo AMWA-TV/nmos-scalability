@@ -67,17 +67,17 @@ class NmosImplementation:
         "Discover and resolve a service via the nmos-cpp mDNS web service"
         host = self.mdns_host
         if host > -1:
-            command = 'wget -qO - http://' + self.mn.hosts[host].IP() + ':3214/x-mdns/_nmos-' + service + '._tcp/'
+            command = 'wget -qO - http://' + self.mn.hosts[host].IP() + ':3214/x-dns-sd/v1.0/_nmos-' + service + '._tcp/'
             self.mn.hosts[host].cmd( 'echo' )
             response = self.mn.hosts[host].cmd( command )
             try:
                 data = json.loads( response )
                 versions = data[0]['txt']['api_ver']
                 latest = versions.split( "," )[-1]
-                resolved = data[0]['txt']['api_proto'] + '://' + data[0]['address']
+                resolved = data[0]['txt']['api_proto'] + '://' + data[0]['addresses'][0]
                 resolved += ':' + str(data[0]['port']) + '/x-nmos/' + service + '/' + latest
                 return resolved
-            except ValueError, e:
+            except (LookupError, ValueError) as e:
                 error( 'Error: %s\n' % e )
         else:
             error( 'No mDNS web service running!\n' )
