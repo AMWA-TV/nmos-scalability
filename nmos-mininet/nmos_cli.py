@@ -32,18 +32,19 @@ class NmosCLI( CLI ):
 
     def do_start_registry( self, host_name ):
         """Start an NMOS registry on the given host.
-           Usage: start_registry <host>"""
-        if len(host_name):
-            host = self.__hostname_to_index( host_name )
+           Usage: start_registry <host> [<args>]"""
+        args = host_name.split()
+        if len(args):
+            host = self.__hostname_to_index( args[0] )
             info( '*** Starting registry\n' )
-            self.nmos_impl.start_registry( host )
+            self.nmos_impl.start_registry( host, ' '.join(args[1:]) )
         else:
             error( 'No host specified!\n' )
 
     def do_start_node( self, range ):
         """Start an NMOS node on a host or a range of hosts.
            Usage: start_node <host>
-                  start_node <first host> <last host>"""
+                  start_node <first host> <last host> [<args>]"""
         args = range.split()
         if len(args):
             start = end = self.__hostname_to_index( args[0] )
@@ -52,7 +53,7 @@ class NmosCLI( CLI ):
             info( '*** Starting %d nodes\n' % (end - start + 1) )
             try:
                 for host in xrange(start, end + 1):
-                    self.nmos_impl.start_node( host )
+                    self.nmos_impl.start_node( host, ' '.join(args[2:]) )
                     info( self.mn.hosts[host].name + ' ' )
                 info( '\n' )
             except IndexError, e:
@@ -140,16 +141,27 @@ class NmosCLI( CLI ):
         else:
             error( 'No host specified!\n' )
 
-    def do_stop_node( self, host_name ):
+    def do_stop_node( self, range ):
         """Stop an NMOS node on the given host.
-           Usage: stop_node <host>"""
-        # we should add range form
-        if len(host_name):
-            host = self.__hostname_to_index( host_name )
-            info( '*** Stopping node\n' )
-            self.nmos_impl.stop_node( host )
+           Usage: stop_node <host>
+                  stop_node <first host> <last host>"""
+        args = range.split()
+        if len(args):
+            start = end = self.__hostname_to_index( args[0] )
+            if len(args) > 1:
+                end = self.__hostname_to_index( args[1] )
+            info( '*** Stopping %d nodes\n' % (end - start + 1) )
+            try:
+                for host in xrange(start, end + 1):
+                    self.nmos_impl.stop_node( host )
+                    info( self.mn.hosts[host].name + ' ' )
+                info( '\n' )
+            except IndexError, e:
+                error( 'Error: %s\n' % e )
         else:
             error( 'No host specified!\n' )
+    # synonym, because I keep typing the plural!
+    do_stop_nodes = do_stop_node
 
     def do_ovs_standalone( self, line ):
         """Configure all switches in standalone mode."""

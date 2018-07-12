@@ -22,7 +22,7 @@ class NmosImplementation:
                 break
             time.sleep(.1)
 
-    def start_registry( self, host_index ):
+    def start_registry( self, host_index, args ):
         "Create an NMOS registry ..."
         if host_index > -1:
             # some system configuration that could be reasonably be made persistent
@@ -42,17 +42,19 @@ class NmosImplementation:
             cmd_args = 'nmos-cpp-registry'
             cmd_args += ' "{'
             cmd_args += ' \\"host_name\\": \\"' + self.mn.hosts[host_index].name + '\\",'
+            if len(args):
+                cmd_args += ' ' + args + ','
             cmd_args += ' \\"query_paging_limit\\": 10000,'
             cmd_args += ' \\"listen_backlog\\": 1024,'
             cmd_args += ' \\"logging_level\\": -10,'
             cmd_args += ' \\"error_log\\": \\"' + log_file + '\\",'
             cmd_args += ' \\"access_log\\": \\"' + clf_file + '\\"'
-            cmd_args += '}" &'
+            cmd_args += ' }" &'
             self.mn.hosts[host_index].cmd( cmd_args )
             self.__wait_for_file( log_file, 600 )
             self.mdns_host = host_index
 
-    def start_node( self, host_index ):
+    def start_node( self, host_index, args ):
         "Create an NMOS node ..."
         if host_index > -1:
             log_file = 'log/log%d.txt' % (host_index+1)
@@ -60,9 +62,11 @@ class NmosImplementation:
             cmd_args = 'nmos-cpp-node'
             cmd_args += ' "{'
             cmd_args += ' \\"host_name\\": \\"' + self.mn.hosts[host_index].name + '\\",'
+            if len(args):
+                cmd_args += ' ' + args + ','
             cmd_args += ' \\"logging_level\\": -10,'
             cmd_args += ' \\"error_log\\": \\"' + log_file + '\\"'
-            cmd_args += '}" &'
+            cmd_args += ' }" &'
             self.mn.hosts[host_index].cmd( cmd_args )
             self.__wait_for_file( log_file, 600 )
 
