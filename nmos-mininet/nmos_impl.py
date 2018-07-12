@@ -34,8 +34,10 @@ class NmosImplementation:
             # there's a better place to do this too...
             os.system( 'mkdir -p log' )
 
-            os.system( 'rm -f log/log1.txt' )
-            os.system( 'rm -f log/loga.txt' )
+            log_file = 'log/log%d.txt' % (host_index+1)
+            clf_file = 'log/loga%d.txt' % (host_index+1)
+            os.system( 'rm -f ' + log_file )
+            os.system( 'rm -f ' + clf_file )
 
             cmd_args = 'nmos-cpp-registry'
             cmd_args += ' "{'
@@ -43,10 +45,11 @@ class NmosImplementation:
             cmd_args += ' \\"query_paging_limit\\": 10000,'
             cmd_args += ' \\"listen_backlog\\": 1024,'
             cmd_args += ' \\"logging_level\\": -10,'
-            cmd_args += ' \\"error_log\\": \\"log/log1.txt\\",'
-            cmd_args += ' \\"access_log\\": \\"log/loga.txt\\"'
+            cmd_args += ' \\"error_log\\": \\"' + log_file + '\\",'
+            cmd_args += ' \\"access_log\\": \\"' + clf_file + '\\"'
             cmd_args += '}" &'
             self.mn.hosts[host_index].cmd( cmd_args )
+            self.__wait_for_file( log_file, 600 )
             self.mdns_host = host_index
 
     def start_node( self, host_index ):
@@ -67,6 +70,7 @@ class NmosImplementation:
         "Discover and resolve a service via the nmos-cpp mDNS web service"
         host = self.mdns_host
         if host > -1:
+            # 3214 is the default value for "mdns_port" in nmos-cpp-registry settings
             command = 'wget -qO - http://' + self.mn.hosts[host].IP() + ':3214/x-dns-sd/v1.0/_nmos-' + service + '._tcp/'
             self.mn.hosts[host].cmd( 'echo' )
             response = self.mn.hosts[host].cmd( command )
@@ -89,6 +93,7 @@ class NmosImplementation:
         "Stop nmos-cpp-registry on the given host (by sending an interrupt signal)"
         host_name = self.mn.hosts[host_index].name
         program = "nmos-cpp-registry"
+        # this expression relies on matching the command line args used in start_registry
         cmd = 'kill -2 `ps h -C ' + program + ' | grep "' + program + ' { \\"host_name\\": \\"' + host_name + '\\"" | awk \'{print $1}\'`'
         self.mn.hosts[host_index].cmd( cmd )
 
@@ -96,5 +101,6 @@ class NmosImplementation:
         "Stop nmos-cpp-node on the given host (by sending an interrupt signal)"
         host_name = self.mn.hosts[host_index].name
         program = "nmos-cpp-node"
+        # this expression relies on matching the command line args used in start_node
         cmd = 'kill -2 `ps h -C ' + program + ' | grep "' + program + ' { \\"host_name\\": \\"' + host_name + '\\"" | awk \'{print $1}\'`'
         self.mn.hosts[host_index].cmd( cmd )
