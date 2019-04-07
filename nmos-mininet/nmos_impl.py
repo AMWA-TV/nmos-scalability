@@ -25,12 +25,6 @@ class NmosImplementation:
     def start_registry( self, host_index, args ):
         "Create an NMOS registry ..."
         if host_index > -1:
-            # some system configuration that could be reasonably be made persistent
-            os.system( 'sysctl kernel.pid_max=4194304 >/dev/null' )
-            os.system( 'sysctl net.core.somaxconn=1024 >/dev/null' )
-            os.system( 'sysctl net.core.netdev_max_backlog=5000 >/dev/null' )
-            os.system( 'sysctl net.ipv4.tcp_max_syn_backlog=2048 >/dev/null' )
-
             # there's a better place to do this too...
             os.system( 'mkdir -p log' )
 

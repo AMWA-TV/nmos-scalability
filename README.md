@@ -8,132 +8,188 @@ The following instructions describe how to prepare the basic environment.
 
 The contents of this repository is [licensed](LICENSE) under the terms of the Apache License 2.0.
 
+## Oracle VirtualBox
+
+Mininet can be run under a variety of virtualisation programs.
+These instructions are tailored to use Oracle VM VirtualBox Manager 5.1 or 5.2 on Windows.
+(To use other virtualisation programs, see http://mininet.org/vm-setup-notes/ and adapt the setup accordingly.)
+
+## VirtualBox Network Setup
+
+![VirtualBox Network Setup](docs/images/VirtualBoxNetworkConfig.png)
+
+### Host-Only Interface
+
+For scalability testing we require several thousand IP addresses for the hosts under Mininet.
+We have reserved the lower part of the 10.0/16 IP address range for this purpose.
+This has been achieved by setting up the 10.0/16 range as a Host-Only interface with part of this range (10.0.254.xx) used for DHCP for the host computer and virtual machine interfaces on this network.
+This allows communication between:
+- Host computer
+- Virtual machines
+- Mininet hosts running on a virtual machine (needs additional configuration, for which see later)
+
+#### Host-Only Adapter Configuration
+
+- To configure from VirtualBox Manager GUI
+  - *File -> Host Network Manager...*
+
+    ![VirtualBox Host-Only](docs/images/VirtualBoxHostOnlyAdapterSettings.png)
+
+- Alternatively configure from the command line as follows:
+  - Modify the existing default Host-Only Ethernet adapter  
+    ```winbatch
+    VBoxManage hostonlyif ipconfig "VirtualBox Host-Only Ethernet Adapter" --ip 10.0.254.1 --tmask 255.255.0.0
+    ```
+  - Set the host-only DHCP server to use the 10.0.254.xx address range  
+    ```winbatch
+    VBoxManage dhcpserver modify --ifname "VirtualBox Host-Only Ethernet Adapter" --ip 10.0.254.0 --netmask 255.255.0.0 --lowerip 10.0.254.2 --upperip 10.0.254.254 --enable
+    ```
+
+#### NAT Adapter Configuration
+
+The default NAT adapter address clashes with the host-only adapter configuration assigned above. The NAT adapter address needs to be modified.
+This has to be applied to each VM used. (This NAT adapter configuration is performed automatically in the `ImportVM` script described below.)
+
 ## Set Up The Mininet Virtual Machine
 
-### Download the 64-bit Mininet VM image
+### Download the 64-bit Mininet VM Image
 
-Grab it from this link: https://github.com/mininet/mininet/releases/download/2.2.2/mininet-2.2.2-170321-ubuntu-14.04.4-server-amd64.zip
+Grab it from this link: https://github.com/mininet/mininet/releases/download/2.2.2/mininet-2.2.2-170321-ubuntu-14.04.4-server-amd64.zip, and expand the archive.
+
+### Configuration Notes
+
+* Increase the amount of memory and CPUs used by the VM
+
+  More memory and more CPUs are better (default is 1024 MB and 1 CPU).
+  On our primary test machine, to simulate networks with several thousand NMOS Nodes, we used 40 GBytes of memory and 12 CPUs, but it's certainly possible to run many tests with fewer.
+
+* Guest Additions
+
+  Installing the Guest Additions to the VM adds facilities to improve the user experience, such as an easy way to add shared folders and mouse pointer integration if running with a GUI.
 
 ### Import the VM into VirtualBox
 
-See http://mininet.org/vm-setup-notes/.
-(We're using Oracle VM VirtualBox Manager 5.1 or 5.2.)
+The Mininet VM can be imported via the VirtualBox GUI or via the VirtualBox command line.
+Scripts exist in this repository to simplify the importing and set up of the Mininet VM.
 
-### Increase the amount of memory and CPUs used by the VM
+#### To import the VM by using the nmos-scalability script
 
-More memory and more CPUs is better.
-On our primary test machine to simulate networks with several thousand nodes, we used 40 GBytes of memory and 12 CPUs, but it's certainly possible to run some tests with fewer.
-(Note that adding a second virtual network adaptor can cause problems e.g. when trying to install additional software within the VM via the host network.)
+##### Fetch the Import VM Script
 
-## Install Ubuntu Desktop
+  * Fetch the [`nmos-scalability\install\ImportVM.bat`](install/ImportVM.bat) batch file
 
-While this isn't required, it certainly makes using the virtual machine more comfortable!
+##### Run The Script
 
-- Launch the host and login as the *mininet* user
-- If you are using a network proxy, set the ``http_proxy`` environment variable appropriately
-- Run the following commands:
-  ```bash
-  sudo -E apt-get update
-  sudo -E apt-get install ubuntu-desktop
-  ```
-- To configure Ubuntu to start the desktop automatically after login:
-  - Edit */etc/default/grub* and change the following line:
+  * Optionally, to change the default 1 CPU and 1024MB of memory settings, first set the following environment variables to appropriate values for your system:  
+    ```winbatch
+    set NMOS_MININET_CPUS=12
+    set NMOS_MININET_MEMORY=40000
     ```
-    GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 text "
+  * Optionally, to set up a shared folder, set the following environment variable to the folder to be shared:  
+    ```winbatch
+    set NMOS_MININET_SHARED_DIR=C:\PathTo\DirToShare
     ```
-    to:
+    * In this case the shared directory will be found on the VM at `/media/sf_DirToShare`.
+      If you wish to change the name to be appended to the prefix `/media/sf_`, set the following environment variable as well:  
+      ```winbatch
+      set NMOS_MININET_SHARED_DIR_NAME=AlternativeName
+      ```
+  * Call the `ImportVM.bat` batch file to import the VM, passing it the `.ovf` file from the Mininet archive you downloaded:  
+    ```winbatch
+    ImportVM.bat <Mininet-VM .ovf file>
     ```
-    GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 quiet splash "
-    ```
-  - After editing the file, run the following command:
-    ```bash
-    sudo update-grub
-    ```
+    * The above line will import the Mininet VM with the default VirtualBox name, `Mininet-VM`.
+      If additional VMs are required, or you wish to change the name used by VirtualBox for this VM, pass the name as a second parameter to the script.
+      (Avoid the use of the underscore character if you wish to use the same name as the VM hostname.)  
+      ```winbatch
+      ImportVM.bat <Mininet-VM .ovf file> <Alternative-VM-Name>
+      ```
+  * Once imported, the batch file will prompt you to press Enter to start the VM.
 
-The next time you boot the VM, you should see the GUI login screen.
+#### Alternatively import using VirtualBox GUI
 
-### Install Guest Additions to enable Shared Folders (and other Good Stuff*)
-(*such as being able to resize the VM screen/desktop)
+To import the VM manually from the GUI, or to check the VM configuration settings from the GUI, see [this page](docs/VirtualBoxImportFromGUI.md).
 
-- Add an empty Optical Drive in *Settings > Storage*
-- Launch the host
-- Choose *Devices > Insert Guest Additions CD image...*
+## Configuring the Mininet VM
 
-(The *VBoxGuestAdditions.iso* image is installed as part of VirtualBox.)
-
-Log in and run the following commands:
-
-```bash
-sudo mount /dev/cdrom /media/cdrom
-sudo su
-cd /media/cdrom
-./VBoxLinuxAdditions.run
-```
-
-When the installation has finished restart the VM: ``shutdown -r now``
-
-More detailed instructions can be found here: https://www.techrepublic.com/article/how-to-install-virtualbox-guest-additions-on-a-gui-less-ubuntu-server-host/
-
-- Add the *mininet* user to the shared folders group: ``sudo adduser mininet vboxsf``
-
-### Increase the number of processes and open files that a user is allowed
-
-To do this, edit the */etc/security/limits.conf* file and add the following lines:
-
-```
-*       -    nofile       100000
-*       -    nproc        500000
-```
-
-This increases the hard and soft limits, for all users, for the number of open files and the number of running threads across all processes.
-
-### Create another virtual disk for the VM
-
-It can be a good idea to do this, otherwise there is a risk of running out of space on the primary disk.
-
-In VirtualBox add a new hard disk on the *Storage* tab of the settings dialog for the VM.
-The default options for a new virtual hard disk, to create a VDI (VirtualBox Disk Image) that is dynamically allocated, 10 GB in size, are OK depending on what else you want to use it for.
-
-Run up the VM and partition, format and mount the new disk. Add it to */etc/fstab* so this survives a reboot.
-
-More detailed instructions can be found here: https://muffinresearch.co.uk/adding-more-disk-space-to-a-linux-virtual-machine/
-
-### Mount a shared folder
-
-This is the simplest way to copy stuff between the host and the VM.
-
-In VirtualBox Manager, set up a permanent, auto-mount, shared folder to the local *nmos-scalability* repository directory.
-
-This will appear as */media/sf_\<share-name\>*, and belong to the *vboxsf* group, to which we already added the *mininet* user.
-
-On a Windows host, in order to be able to create symlinks in the shared folder, run the following:
+The Host-Only DHCP server allocates the IP addresses starting from 10.0.254.2.
+If this is the first VM started using this host-only interface it will have this first address.
+This can be verified using `ping`:
 
 ```winbatch
-cd C:/Program Files/Oracle/VirtualBox
-VBoxManage setextradata <virtual-machine-name> VBoxInternal2/SharedFoldersEnableSymlinksCreate/<share-name> 1
+ping 10.0.254.2
 ```
 
-Restart VirtualBox Manager.
+The following procedure uses `scp` (secure copy) and `ssh` (secure shell).
+These tools are natively available on a Windows 10 platform if *Developer mode* is enabled in *Update and Security -> For developers*.
+Alternatively `putty` and its secure copy, `pscp`, can be used.
 
-In order to avoid limitations of the VirtualBox shared folder filesystem, it's a good idea to copy the contents of this repository onto the new virtual disk, created above.
+The [`nmos-scalability/install`](install) directory contains Linux scripts to further configure the Mininet VM for Mininet with our NMOS extensions.
+We first need to transfer these onto the Mininet VM.
+* Download this repository as an archive: https://github.com/AMWA-TV/nmos-scalability/archive/master.tar.gz
+* Now use `scp` to transfer this onto the VM:  
+  ```winbatch
+  scp nmos-scalability-master.tar.gz mininet@10.0.254.2:/home/mininet/nmos-scalability-master.tar.gz
+      <accept key (if first login)>
+      <enter password 'mininet'>
+  ```
+* Now login to the Mininet VM:  
+  ```winbatch
+  ssh mininet@10.0.254.2
+      <enter password 'mininet'>
+  ```
+* Expand the archive that was transferred via `scp`:  
+  ```bash
+  tar xvzf nmos-scalability-master.tar.gz
+  mv nmos-scalability-master nmos-scalability
+  ```
 
-Let's call that copy in the filesystem *\<nmos-scalability\>*.
+* If working behind a proxy server, set the environment variable `VM_PROXY_SETTINGS` to indicate the setting to use.
+  * If `cntlm` is already set up on the host computer, this can be utilised via the NAT network.
+    Check the port number used by your host `cntlm` as this can vary from the default 3128 used in this example.
+    (10.10.0.2 is the default gateway of the VirtualBox internal NAT network after the address change in the `ImportVM` script.)  
+    ```bash
+    export VM_PROXY_SETTINGS=http://10.10.0.2:3128
+    ```
+  * Alternatively, the authentication can be specified along with your proxy server directly, as in this example.
+    (Note the authentication in this case will be stored on the VM in various places, see the script [`nmos-scalability/install/SetProxies.sh`](install/SetProxies.sh) for where.)  
+    ```bash
+    export VM_PROXY_SETTINGS=http://<username>:<password>@proxy.example.com:10080
+    ```
+* Run the `SetupPart1.sh` script, optionally passing in a new name for the VM (e.g. lowercase version of VirtualBox name to follow the default naming convention).  
+  ```bash
+  nmos-scalability/install/SetupPart1.sh mininet-vm01
+  ```
+* You will be prompted to press enter to reboot. Log in again:  
+  ```winbatch
+  ssh mininet@10.0.254.2
+      <enter password 'mininet'>
+  ```
+* If you specified a new name, this should have now changed.
+  Verify internet access is available, e.g. with:  
+  ```bash
+  wget www.google.com
+  ```
 
-### Prepare DNS entries for the hosts in the Mininet virtual network
+* Run part 2 of the setup:  
+  ```bash
+  nmos-scalability/install/SetupPart2.sh
+      <git repo login>
+      <git repo password>
+  ```
+* This takes about 40 minutes or so to complete building and setup.
+  When completed you will be prompted to reboot again.
 
-Add a static lookup table for Mininet hostnames to */etc/hosts*.
+## Optional Additions
 
-```bash
-cd <nmos-scalability>
-sudo su
-bin/mn-hosts 4096 >>/etc/hosts
-```
+[This page](docs/VirtualBoxOptionalAdditions.md) has further instructions for:
 
-If you prefer, you can use e.g. *dnsmasq* as described below.
+* Installing Ubuntu Desktop for a GUI interface
+* Adding additional disk space
+* Connecting a USB drive to the VM
+* Installing Samba to share out `/home/mininet` to a Windows host
 
 ### Run Mininet
-
-Restart the VM to ensure all the settings have taken effect: ``sudo shutdown -r now``
 
 Run the command ``sudo mn`` to experiment with the basic Mininet tool.
 With no additional options, this constructs a small network and starts the built-in Mininet CLI:
@@ -142,7 +198,7 @@ With no additional options, this constructs a small network and starts the built
 *** Creating network
 *** Adding controller
 *** Adding hosts:
-h1 h2 
+h1 h2
 *** Adding switches:
 s1
 *** Adding links:
@@ -155,37 +211,13 @@ s1 ...
 mininet>
 ```
 
-Type ``h1 ping -c1 h2`` to confirm that Mininet is basically functional. Try ``h1 ping -c1 "h2"`` to confirm that DNS is working within the virtual network.
+Type ``h1 ping -c1 h2`` to confirm that Mininet is basically functional.
+Try ``h1 ping -c1 "h2"`` to confirm that DNS is working within the virtual network.
 
 Type ``help`` for a list of the built-in commands.
 Type ``exit`` to quit.
 
 There is a step-by-step Mininet Walkthrough at: http://mininet.org/walkthrough/
-
-## Set Up External Dependencies
-
-### Add the multicast DNS daemon
-
-NMOS uses the DNS Service Discovery protocol to discover Nodes and Registries on the network.
-DNS-SD on Linux can be provided by either of two open-source implementations, *avahi-daemon* or *mdnsd*.
-Applications may need either of these.
-
-To build *mdnsd*, grab the source tarball from this link: https://opensource.apple.com/tarballs/mDNSResponder/mDNSResponder-878.30.4.tar.gz
-
-Copy this onto the VM, unpack it and run:
-
-```bash
-cd <mDNSResponder>/mDNSPosix
-sudo make os=linux install
-```
-
-### Add NMOS Registry and Node implementations
-
-The test environment we're building is intended to support different NMOS Registry and Node implementations.
-
-It has been proven with the open-source [nmos-cpp](https://github.com/sony/nmos-cpp) implementation.
-Copy that repo onto the new virtual disk, and build the nmos-cpp-registry and nmos-cpp-node executables.
-Install these so that they can be found on the *PATH*, and their library dependencies can be found by *LD_LIBRARY_PATH*.
 
 ## Run NMOS Mininet
 
@@ -200,7 +232,7 @@ A simple network will be created, almost as before.
 
 At the ``mininet>`` prompt, type ``help`` for a list of the built-in commands, including the NMOS extensions.
 
-Type ``mdnsd h1 h4`` to run *mdnsd* for all hosts (*h1* to *h4*).
+Type ``mdnsd h1 h4`` to run `mdnsd` for all hosts (*h1* to *h4*).
 
 Type ``start_registry h1`` to start up a registry on host *h1*.
 
@@ -212,7 +244,8 @@ Type ``exit`` to quit.
 
 ## Create a larger network
 
-The extended Mininet CLI, *nmos-mn* supports all of the same command-line options. For example, this command-line creates a network of 256 hosts without a controller:
+The extended Mininet CLI, `nmos-mn` supports all of the same command-line options.
+For example, this command-line creates a network of 256 hosts without a controller:
 
 ```bash
 sudo bin/nmos-mn --topo=tree,2,16 --controller=none
@@ -220,59 +253,30 @@ sudo bin/nmos-mn --topo=tree,2,16 --controller=none
 
 Then at the ``mininet>`` prompt, set the switches into standalone mode, start up the mDNS daemon, a registry and lots of nodes:
 
-```
+```bash
 ovs_standalone
 mdnsd h1 h256
 start_registry h1
 start_node h2 h256
 ```
 
-## Additional Configuration
+## Bridging bewtween Host-Only Interface and Mininet network
 
-Other steps that might be useful...
+By default the Mininet hosts are isolated from the host-only network on the VM.
 
-### How to connect a USB drive to the VM
+![VirtualBox Network Setup](docs/images/VirtualBoxVmBridge1.png)
 
-E.g. in order to copy files on to the VM
-
-- First add a USB 1.1 device to the VM in VirtualBox settings
-- Plug the USB device into a USB2 (*not* USB3) socket on the host machine and start the VM
-
-Then on the VM run the following two commands (assuming the USB device has appeared as */dev/sdb1*):
+[Open vSwitch](https://www.openvswitch.org/) can be used to bridge the Mininet network with the VM.
+The following scripts perform the creation and tear down of the bridge `br0` to perform this function:
 
 ```bash
-sudo mkdir /media/usbstick
-sudo mount -t vfat /dev/sdb1 /media/usbstick
+nmos-scalability/bin/add_bridge.sh br0 eth0 s1
+nmos-scalability/bin/delete_bridge.sh br0 eth0 s1
 ```
 
-More info: https://askubuntu.com/questions/285539/detect-and-mount-devices
+![VirtualBox Network Setup](docs/images/VirtualBoxVmBridge2.png)
 
-### How to provide DNS for the Mininet virtual network
-
-Rather than modifying the system */etc/hosts* file, it is possible to use *dnsmasq*.
-
-Install from: http://www.thekelleys.org.uk/dnsmasq/doc.html
-
-Add a "dns-nameservers 10.0.0.1" line to the loopback interface in */etc/network/interfaces*
-
-For example:
-
-```
-# The loopback network interface
-auto lo
-iface lo inet loopback
-    dns-nameservers 10.0.0.1
-```
-
-Then run this command: ``sudo ifup --force lo``
-
-To create an additional hosts file and start up *dnsmasq*, run:
-
-```bash
-cd <nmos-scalability>
-sudo bin/mn-hosts 4096 >/etc/hosts.mininet
-sudo chmod +r hosts.mininet
-sudo dnsmasq -h -H /etc/hosts.mininet
-```
-
-Note that the absolute path to the additional hosts file must be specified and readable by the *root* user.
+With this bridge in place, communication can freely occur between the Mininet hosts, the VM and the host computer.
+The nmos-scalability Mininet CLI (`nmos-mn`) has new commands that run the necessary script to create and tear down the bridge:
+* `add_bridge`
+* `delete_bridge`

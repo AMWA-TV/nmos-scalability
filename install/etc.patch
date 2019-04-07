@@ -1,0 +1,55 @@
+diff -u -r Orig/etc/network/interfaces New/etc/network/interfaces
+--- Orig/etc/network/interfaces	2016-08-03 15:29:11.000000000 -0700
++++ New/etc/network/interfaces	2018-12-03 08:22:09.000000000 -0800
+@@ -4,7 +4,13 @@
+ # The loopback network interface
+ auto lo
+ iface lo inet loopback
++    dns-nameservers 10.0.0.1 
+ 
+ # The primary network interface
+ auto eth0
+ iface eth0 inet dhcp
++
++
++# The secondary network interface
++auto eth1
++iface eth1 inet dhcp
+diff -u -r Orig/etc/nsswitch.conf New/etc/nsswitch.conf
+--- Orig/etc/nsswitch.conf	2014-02-19 18:43:56.000000000 -0800
++++ New/etc/nsswitch.conf	2018-11-28 06:11:27.000000000 -0800
+@@ -8,7 +8,7 @@
+ group:          compat
+ shadow:         compat
+ 
+-hosts:          files dns
++hosts:          files  mdns4_minimal [NOTFOUND=return] dns mdns4 
+ networks:       files
+ 
+ protocols:      db files
+diff -u -r Orig/etc/security/limits.conf New/etc/security/limits.conf
+--- Orig/etc/security/limits.conf	2014-01-31 14:21:09.000000000 -0800
++++ New/etc/security/limits.conf	2018-11-28 13:16:17.000000000 -0800
+@@ -52,5 +52,6 @@
+ #ftp             hard    nproc           0
+ #ftp             -       chroot          /ftp
+ #@student        -       maxlogins       4
+-
++*                -       nofile          100000
++*                _       nproc           500000
+ # End of file
+diff -u -r Orig/etc/sysctl.conf New/etc/sysctl.conf
+--- Orig/etc/sysctl.conf	2017-03-21 14:21:11.000000000 -0700
++++ New/etc/sysctl.conf	2018-12-03 08:15:54.000000000 -0800
+@@ -63,3 +63,11 @@
+ net.ipv6.conf.all.disable_ipv6 = 1
+ net.ipv6.conf.default.disable_ipv6 = 1
+ net.ipv6.conf.lo.disable_ipv6 = 1
++
++# A few system parameter changes for nmos-scalability
++kernel.pid_max=4194304
++net.core.somaxconn=1024
++net.core.netdev_max_backlog=5000
++net.ipv4.tcp_max_syn_backlog=2048
++
++

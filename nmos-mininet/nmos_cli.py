@@ -171,4 +171,16 @@ class NmosCLI( CLI ):
             info( s.name + ' ' )
         info( '\n' )
 
+    def do_add_bridge( self, line ):
+        """adds bridge br0 to eth0 and attaches mininet top level switch s1"""
+        info( '*** adding bridge br0 to eth0 and attaching s1\n' )
+        add_bridge_script = sys.path[0] + '/../bin/add_bridge.sh'
+        os.system( add_bridge_script + ' br0 eth0 s1' )
+
+    def do_delete_bridge( self, line ):
+        """deleting bridge br0"""
+        info( '*** deleting bridge br\n' )
+        delete_bridge_script = sys.path[0] + '/../bin/delete_bridge.sh'
+        os.system( delete_bridge_script + ' br0 eth0 s1' )
+
 CLI = NmosCLI
