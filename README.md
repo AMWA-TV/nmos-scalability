@@ -159,7 +159,7 @@ We first need to transfer these onto the Mininet VM.
 * If working behind a proxy server, set the environment variable `VM_PROXY_SETTINGS` to indicate the setting to use.
   * If `cntlm` is already set up on the host computer, this can be utilised via the NAT network.
     Check the port number used by your host `cntlm` as this can vary from the default 3128 used in this example.
-    (10.10.0.2 is the default gateway of the VirtualBox internal NAT network after the address change in the `ImportVM` script.)  
+    (10.0.254.1 is the default gateway of the VirtualBox internal NAT network after the address change in the `ImportVM` script.)  
     ```bash
     export VM_PROXY_SETTINGS=http://10.0.254.1:3128
     ```
