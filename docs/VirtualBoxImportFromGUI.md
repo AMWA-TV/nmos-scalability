@@ -5,7 +5,7 @@
   * *Appliance to Import* (Select the `.ovf` file from the Mininet archive that you downloaded)
   * Modify number of CPUs as appropriate
   * Modify amount of memory as appropriate
-  * Select *Reinitialse MAC address of all network cards*
+  * Select *Reinitialise MAC address of all network cards*
   * *Import*
 
 ### Setup performed from the Settings menu of the VM

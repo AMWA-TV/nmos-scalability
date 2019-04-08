@@ -260,7 +260,7 @@ start_registry h1
 start_node h2 h256
 ```
 
-## Bridging bewtween Host-Only Interface and Mininet network
+## Bridging between Host-Only Interface and Mininet network
 
 By default the Mininet hosts are isolated from the host-only network on the VM.
 
