@@ -1,14 +1,26 @@
 # NMOS Scalability
 
-This repository establishes a test environment for [NMOS](https://github.com/AMWA-TV/nmos) Scalability using the [Mininet](https://github.com/mininet/mininet/) network rapid prototyping tool.
+This repository establishes a test environment for investigating [NMOS](https://github.com/AMWA-TV/nmos) Scalability using the [Mininet](https://github.com/mininet/mininet/) network rapid prototyping tool.
 Mininet emulates a complete network of hosts, links, and switches on a single machine.
 We extend Mininet with functions to build large-scale networks of NMOS Registries and Nodes.
 
+## Study Findings
+
+For an overview of this study and its conclusions, watch the presentation ["Scalability and Performance of the AMWA IS-04 and IS-05 NMOS Specifications for Networked Media"](https://www.youtube.com/watch?v=vuwJWtVGvss) given at the [SMPTE 2018 Annual Technical Conference](https://www.smpte.org/news-events/events/smpte-2018-annual-technical-conference-exhibition).
+
+A paper describing the study and initial results is also freely available at https://ieeexplore.ieee.org/document/8610041, thanks to the Society of Motion Picture and Television Engineers.
+An updated version with additional material is to appear in the July 2019 issue of the SMPTE Motion Imaging Journal.
+
+Other presentations:
+
+* [IP Showcase](http://www.ipshowcase.org/) at IBC 2018: [video](http://www.ipshowcase.org/2018/11/07/video-is-04-and-is-05-scalability/), [presentation](http://www.ipshowcase.org/wp-content/uploads/2018/11/Rob-Porter-AMWA-NMOS-IS-04-and-IS-05-Scalability-and-Performance.pdf)
+* IP Showcase at NAB 2019: [schedule of events](http://www.ipshowcase.org/theater-schedule-nab-show-2019/)
+
+The contents of this repository are [licensed](LICENSE) under the terms of the Apache License 2.0.
+
+## Test Environment Setup
+
 The following instructions describe how to prepare the basic environment.
-
-The contents of this repository is [licensed](LICENSE) under the terms of the Apache License 2.0.
-
-## Oracle VirtualBox
 
 Mininet can be run under a variety of virtualisation programs.
 These instructions are tailored to use Oracle VM VirtualBox Manager 5.1 or 5.2 on Windows.
