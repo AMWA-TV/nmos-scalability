@@ -50,7 +50,7 @@ This allows communication between:
 - Alternatively configure from the command line as follows:
   - Modify the existing default Host-Only Ethernet adapter  
     ```winbatch
-    VBoxManage hostonlyif ipconfig "VirtualBox Host-Only Ethernet Adapter" --ip 10.0.254.1 --tmask 255.255.0.0
+    VBoxManage hostonlyif ipconfig "VirtualBox Host-Only Ethernet Adapter" --ip 10.0.254.1 --netmask 255.255.0.0
     ```
   - Set the host-only DHCP server to use the 10.0.254.xx address range  
     ```winbatch
@@ -161,7 +161,7 @@ We first need to transfer these onto the Mininet VM.
     Check the port number used by your host `cntlm` as this can vary from the default 3128 used in this example.
     (10.10.0.2 is the default gateway of the VirtualBox internal NAT network after the address change in the `ImportVM` script.)  
     ```bash
-    export VM_PROXY_SETTINGS=http://10.10.0.2:3128
+    export VM_PROXY_SETTINGS=http://10.0.254.1:3128
     ```
   * Alternatively, the authentication can be specified along with your proxy server directly, as in this example.
     (Note the authentication in this case will be stored on the VM in various places, see the script [`nmos-scalability/install/SetProxies.sh`](install/SetProxies.sh) for where.)  
@@ -186,8 +186,6 @@ We first need to transfer these onto the Mininet VM.
 * Run part 2 of the setup:  
   ```bash
   nmos-scalability/install/SetupPart2.sh
-      <git repo login>
-      <git repo password>
   ```
 * This takes about 40 minutes or so to complete building and setup.
   When completed you will be prompted to reboot again.

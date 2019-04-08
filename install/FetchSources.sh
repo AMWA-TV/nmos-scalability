@@ -4,7 +4,8 @@ git clone https://github.com/sony/nmos-cpp
 
 git clone https://github.com/Microsoft/cpprestsdk
 cd cpprestsdk
-git  submodule update –-init
+git submodule init
+git submodule update
 cd ..
 
 # Zipped Releases
